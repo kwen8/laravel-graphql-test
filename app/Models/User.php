@@ -27,7 +27,7 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function post()
+    public function job()
     {
         return $this->hasMany('App\Models\Post');
     }

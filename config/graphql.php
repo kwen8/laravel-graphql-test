@@ -127,15 +127,8 @@ return [
     'schemas' => [
         'default' => [
             'query' => [
-                'users' => App\GraphQL\Query\UsersQuery::class
-            ],
-            'mutation' => [
-
-            ]
-        ],
-        'auth' => [
-            'query' => [
-                'users' => App\GraphQL\Query\UsersQuery::class
+                'users' => App\GraphQL\Query\UsersQuery::class,
+                'jobs' => App\GraphQL\Query\JobsQuery::class,
             ],
             'mutation' => [
 
@@ -179,7 +172,8 @@ return [
      * ]
      */
     'types' => [
-        'User' => App\GraphQL\Type\UserType::class,
+        'users' => App\GraphQL\Type\UsersType::class,
+        'jobs' => App\GraphQL\Type\JobsType::class,
     ],
 
     /*

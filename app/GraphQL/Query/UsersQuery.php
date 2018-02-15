@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: kwen
- * Date: 2018/2/10
- * Time: 上午10:28
- */
 
 namespace App\GraphQL\Query;
 
@@ -21,9 +15,13 @@ class UsersQuery extends Query
 
     public function type()
     {
-        return Type::listOf(GraphQL::type('User'));
+        return Type::listOf(GraphQL::type('users'));
     }
 
+    /**
+     * 接收参数的类型定义
+     * @return array
+     */
     public function args()
     {
         return [
@@ -33,11 +31,17 @@ class UsersQuery extends Query
         ];
     }
 
+    /**
+     * @param $root
+     * @param $args 传入参数
+     *
+     * 处理请求的逻辑
+     * @return mixed
+     */
     public function resolve($root, $args)
     {
         $user = new User;
 
-        // check for limit
         if(isset($args['limit']) ) {
             $user =  $user->limit($args['limit']);
         }

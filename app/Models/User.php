@@ -29,6 +29,6 @@ class User extends Authenticatable
 
     public function job()
     {
-        return $this->hasMany('App\Models\Post');
+        return $this->hasMany('App\Models\Job');
     }
 }

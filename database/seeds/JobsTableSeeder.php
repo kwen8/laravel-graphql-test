@@ -16,5 +16,10 @@ class JobsTableSeeder extends Seeder
             'name' => '前端开发工程师',
             'description' => '前端前端'
         ]);
+        DB::table('jobs')->insert([
+            'user_id' => 2,
+            'name' => 'PHP开发工程师',
+            'description' => 'PHP'
+        ]);
     }
 }

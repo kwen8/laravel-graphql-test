@@ -1,0 +1,163 @@
+# 在Laravel中使用GraphQL二【增删改数据】
+
+在[上一章节](https://laravel-china.org/articles/8115/using-graphql-one-in-laravel-get-data)主要介绍了在 Laravel 中如何搭建 GraphQL 环境，如何使用 GraphQL 进行基础的查询数据还有如何使用 Graphiql 进行测试数据，本章继续探讨如何在 Laravel 中使用 GraphQL 进行**修改删除**数据，修改删除数据主要使用的是 [Mutations](http://graphql.cn/learn/queries/#mutations)
+
+## 什么是 Mutations（变更）
+
+> GraphQL 的大部分讨论集中在数据获取，但是任何完整的数据平台也都需要一个改变服务端数据的方法。
+
+在 REST 中，约定了不要使用 **GET** 请求来修改数据，GraphQL 也是如此，在技术上而言，任何查询都可以看成是数据写入。因此需要建立一个约定来规范任何导致写入的操作都应该通过**变更（mutation）**来发送。
+
+## 在 Laravel 中使用 Mutation
+
+### 新增数据
+
+首先在 `GraphQL` 目录下面如图创建所需 Mutation，这里分别创建了 `CreateUserMutation.php` 和 `CreateJobMutation.php` ，一个是创建用户的，一个是创建工作的
+
+![目录结构](https://ws2.sinaimg.cn/large/006tNc79gy1foyyj9dqzvj30is0gujst.jpg)
+
+代码部分...
+
+```php
+// CreateUserMutation.php
+
+<?php
+
+namespace App\GraphQL\Mutation;
+
+use GraphQL\Type\Definition\Type;
+use GraphQL;
+use Folklore\GraphQL\Support\Mutation;
+use App\Models\User;
+
+class CreateUserMutation extends Mutation
+{
+    protected $attributes = [
+        'name' => 'CreateUser'
+    ];
+
+    public function type()
+    {
+        return GraphQL::type('users');
+    }
+
+    public function args()
+    {
+        return [
+            'name' => [
+                'name' => 'name',
+                'type' => Type::nonNull(Type::string())
+            ],
+            'email' => [
+                'name' => 'email',
+                'type' => Type::nonNull(Type::string())
+            ],
+            'password' => [
+                'name' => 'password',
+                'type' => Type::nonNull(Type::string())
+            ]
+        ];
+    }
+
+    public function resolve($root, $args)
+    {
+        $args['password'] = bcrypt($args['password']);
+        $user = User::create($args);
+        if (!$user) {
+            return null;
+        }
+        return $user;
+    }
+}
+
+```
+
+```php
+// CreateJobMutation.php
+
+<?php
+
+namespace App\GraphQL\Mutation;
+
+use App\Models\User;
+use GraphQL\Type\Definition\Type;
+use GraphQL;
+use Folklore\GraphQL\Support\Mutation;
+use App\Models\Job;
+
+class CreateJobMutation extends Mutation
+{
+    protected $attributes = [
+        'name' => 'CreateJob'
+    ];
+
+    public function type()
+    {
+        return GraphQL::type('jobs');
+    }
+
+    public function args()
+    {
+        return [
+            'userId' => [
+                'name' => 'userId',
+                'type' => Type::id()
+            ],
+            'name' => [
+                'name' => 'name',
+                'type' => Type::nonNull(Type::string())
+            ],
+            'description' => [
+                'name' => 'description',
+                'type' => Type::nonNull(Type::string())
+            ]
+        ];
+    }
+
+    public function resolve($root, $args)
+    {
+        $job = new Job([
+            'name' => $args['name'],
+            'description' => $args['description'],
+        ]);
+        $user = User::find($args['userId']);
+        if (!$user) return null;
+        $user->job()->save($job);
+        return $job;
+    }
+}
+
+```
+
+增加了两个 Mutation 之后不要忘了在 `graphql.php` 中注册这两个 Mutation
+
+```php
+   // graphql.php
+   ...
+   'schemas' => [
+        'default' => [
+            'query' => [
+                'users' => App\GraphQL\Query\UsersQuery::class,
+                'jobs' => App\GraphQL\Query\JobsQuery::class,
+            ],
+            'mutation' => [
+                'createUser' => App\GraphQL\Mutation\CreateUserMutation::class,
+                'createJob' => App\GraphQL\Mutation\CreateJobMutation::class,
+            ]
+        ]
+    ],
+    ...
+```
+
+然后就可以创建用户了
+
+![createUser](https://ws3.sinaimg.cn/large/006tNc79ly1foyyfgw7itj31460f440x.jpg)
+
+
+
+接下来创建 Job，创建完之后查询一遍 user，即可发现 User 和 Job 都新增进去了
+
+
+
+![queryUser](https://ws2.sinaimg.cn/large/006tNc79gy1foyyts2pr4g30hs0fr1kz.gif)
+

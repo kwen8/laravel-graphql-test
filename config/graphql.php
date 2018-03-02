@@ -131,7 +131,8 @@ return [
                 'jobs' => App\GraphQL\Query\JobsQuery::class,
             ],
             'mutation' => [
-
+                'createUser' => App\GraphQL\Mutation\CreateUserMutation::class,
+                'createJob' => App\GraphQL\Mutation\CreateJobMutation::class,
             ]
         ]
     ],

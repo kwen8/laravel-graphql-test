@@ -132,6 +132,7 @@ return [
             ],
             'mutation' => [
                 'createUser' => App\GraphQL\Mutation\CreateUserMutation::class,
+                'updateUser' => App\GraphQL\Mutation\UpdateUserMutation::class,
                 'createJob' => App\GraphQL\Mutation\CreateJobMutation::class,
             ]
         ]
